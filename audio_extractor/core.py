@@ -1,5 +1,5 @@
 """
-Núcleo de extração de áudio.
+Núcleo de extração de áudio e vídeo.
 
 Usa a biblioteca yt-dlp, que já implementa toda a "engenharia reversa" das
 plataformas (extração de metadados, resolução de URLs assinadas, etc).
@@ -14,9 +14,11 @@ from pathlib import Path
 
 import yt_dlp
 
-FORMATOS_SUPORTADOS = ("mp3", "m4a", "wav", "opus")
+FORMATOS_AUDIO_SUPORTADOS = ("mp3", "m4a", "wav", "opus")
+FORMATOS_VIDEO_SUPORTADOS = ("mp4", "mkv", "webm")
+QUALIDADES_VIDEO_SUPORTADAS = ("melhor", "1080p", "720p", "480p", "360p")
 
-# O YouTube exige um "PO Token" para liberar os streams de áudio para a
+# O YouTube exige um "PO Token" para liberar os streams de áudio/vídeo para a
 # maioria dos clients. O plugin bgutil-ytdlp-pot-provider (instalado junto
 # com este projeto) gera esse token através de um servidor HTTP local. Sem
 # ele, o download pode falhar com "HTTP Error 403: Forbidden".
@@ -56,6 +58,37 @@ def _iniciar_pot_server_se_preciso() -> None:
         time.sleep(0.5)
 
 
+def _ydl_opts_base(saida: Path) -> dict:
+    return {
+        "outtmpl": f"{saida}/%(title)s.%(ext)s",
+        "noplaylist": True,       # evita baixar playlist inteira por engano
+        "quiet": False,
+        "no_warnings": False,
+
+        # Necessário para o YouTube resolver desafios de assinatura/PO Token
+        "js_runtimes": {"deno": {}, "node": {}},
+        "remote_components": ["ejs:github"],
+    }
+
+
+def _baixar(url: str, ydl_opts: dict, saida: Path) -> Path:
+    _iniciar_pot_server_se_preciso()
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        # Uma única extração (metadados + download) — extrair duas vezes gera
+        # duas sessões distintas e a segunda pode perder o PO Token obtido
+        # na primeira, causando HTTP 403 no download.
+        info = ydl.extract_info(url, download=True)
+        print(f"Título: {info.get('title')}")
+        print(f"Duração: {info.get('duration')}s")
+        print(f"Extrator usado: {info.get('extractor')}")
+        print("-" * 40)
+
+    print("-" * 40)
+    print(f"Concluído. Arquivo salvo em: {saida}/")
+    return saida
+
+
 def extrair_audio(url: str, formato: str = "mp3", qualidade: str = "0",
                    pasta_saida: str = "./downloads") -> Path:
     """
@@ -70,17 +103,16 @@ def extrair_audio(url: str, formato: str = "mp3", qualidade: str = "0",
 
     Retorna o caminho da pasta de saída.
     """
-    if formato not in FORMATOS_SUPORTADOS:
+    if formato not in FORMATOS_AUDIO_SUPORTADOS:
         raise ValueError(
-            f"Formato '{formato}' não suportado. Use um de: {', '.join(FORMATOS_SUPORTADOS)}"
+            f"Formato '{formato}' não suportado. Use um de: {', '.join(FORMATOS_AUDIO_SUPORTADOS)}"
         )
 
     saida = Path(pasta_saida)
     saida.mkdir(parents=True, exist_ok=True)
 
-    _iniciar_pot_server_se_preciso()
-
     ydl_opts = {
+        **_ydl_opts_base(saida),
         # 'bestaudio/best' = pega o melhor stream de ÁUDIO puro disponível;
         # se não houver um stream separado, cai pro melhor disponível
         "format": "bestaudio/best",
@@ -91,27 +123,44 @@ def extrair_audio(url: str, formato: str = "mp3", qualidade: str = "0",
             "preferredcodec": formato,
             "preferredquality": qualidade,
         }],
-
-        "outtmpl": f"{saida}/%(title)s.%(ext)s",
-        "noplaylist": True,       # evita baixar playlist inteira por engano
-        "quiet": False,
-        "no_warnings": False,
-
-        # Necessário para o YouTube resolver desafios de assinatura/PO Token
-        "js_runtimes": {"deno": {}, "node": {}},
-        "remote_components": ["ejs:github"],
     }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        # Uma única extração (metadados + download) — extrair duas vezes gera
-        # duas sessões distintas e a segunda pode perder o PO Token obtido
-        # na primeira, causando HTTP 403 no download do áudio.
-        info = ydl.extract_info(url, download=True)
-        print(f"Título: {info.get('title')}")
-        print(f"Duração: {info.get('duration')}s")
-        print(f"Extrator usado: {info.get('extractor')}")
-        print("-" * 40)
+    return _baixar(url, ydl_opts, saida)
 
-    print("-" * 40)
-    print(f"Concluído. Arquivo salvo em: {saida}/")
-    return saida
+
+def baixar_video(url: str, qualidade: str = "melhor", formato: str = "mp4",
+                  pasta_saida: str = "./downloads") -> Path:
+    """
+    Baixa o vídeo completo (vídeo + áudio) de uma URL.
+
+    'qualidade' limita a resolução máxima ("melhor", "1080p", "720p", ...);
+    o yt-dlp junta o melhor stream de vídeo e de áudio disponíveis dentro
+    desse limite e usa ffmpeg para juntá-los no contêiner pedido em 'formato'.
+
+    Retorna o caminho da pasta de saída.
+    """
+    if qualidade not in QUALIDADES_VIDEO_SUPORTADAS:
+        raise ValueError(
+            f"Qualidade '{qualidade}' não suportada. Use uma de: {', '.join(QUALIDADES_VIDEO_SUPORTADAS)}"
+        )
+    if formato not in FORMATOS_VIDEO_SUPORTADOS:
+        raise ValueError(
+            f"Formato '{formato}' não suportado. Use um de: {', '.join(FORMATOS_VIDEO_SUPORTADOS)}"
+        )
+
+    saida = Path(pasta_saida)
+    saida.mkdir(parents=True, exist_ok=True)
+
+    if qualidade == "melhor":
+        format_selector = "bestvideo*+bestaudio/best"
+    else:
+        altura = qualidade.rstrip("p")
+        format_selector = f"bestvideo*[height<={altura}]+bestaudio/best[height<={altura}]"
+
+    ydl_opts = {
+        **_ydl_opts_base(saida),
+        "format": format_selector,
+        "merge_output_format": formato,
+    }
+
+    return _baixar(url, ydl_opts, saida)
