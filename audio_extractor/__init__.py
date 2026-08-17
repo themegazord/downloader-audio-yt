@@ -1,4 +1,4 @@
-"""Pacote de extração de áudio de vídeos (YouTube, Twitter/X, Instagram) via yt-dlp."""
+"""Pacote de extração de áudio de vídeos (YouTube, Twitter/X, Instagram, TikTok) via yt-dlp."""
 
 from .core import extrair_audio, FORMATOS_SUPORTADOS
 

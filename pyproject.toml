@@ -1,7 +1,7 @@
 [project]
 name = "downloader-audio-yt"
 version = "1.0.0"
-description = "Extrator de áudio de vídeos (YouTube, Twitter/X, Instagram) usando yt-dlp"
+description = "Extrator de áudio de vídeos (YouTube, Twitter/X, Instagram, TikTok) usando yt-dlp"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [

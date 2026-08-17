@@ -1,6 +1,6 @@
 # downloader-audio-yt
 
-Extrator de áudio de vídeos (YouTube, Twitter/X, Instagram) usando [yt-dlp](https://github.com/yt-dlp/yt-dlp).
+Extrator de áudio de vídeos (YouTube, Twitter/X, Instagram, TikTok) usando [yt-dlp](https://github.com/yt-dlp/yt-dlp).
 
 A biblioteca `yt-dlp` já resolve toda a parte de extração de metadados e URLs
 das plataformas. Este projeto organiza esse fluxo em um pequeno sistema em
@@ -60,7 +60,7 @@ python main.py
 ```
 
 ```
-=== Extrator de Áudio (YouTube / Twitter / Instagram) ===
+=== Extrator de Áudio (YouTube / Twitter / Instagram / TikTok) ===
 Passo 1/4 — URL do vídeo: https://www.youtube.com/watch?v=XXXXXXXX
 Passo 2/4 — Formato [mp3/m4a/wav/opus] (padrão: mp3):
 Passo 3/4 — Qualidade 0 (melhor) a 9 (pior) (padrão: 0):

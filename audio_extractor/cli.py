@@ -35,7 +35,7 @@ def _pedir_saida() -> str:
 
 
 def _executar_wizard(url_inicial: str = "") -> None:
-    print("=== Extrator de Áudio (YouTube / Twitter / Instagram) ===")
+    print("=== Extrator de Áudio (YouTube / Twitter / Instagram / TikTok) ===")
 
     while True:
         url = url_inicial or input("Passo 1/4 — URL do vídeo: ").strip()
