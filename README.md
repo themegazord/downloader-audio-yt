@@ -17,6 +17,12 @@ Python com um assistente por passos no terminal.
 4. **Vídeo**: baixa o melhor stream de vídeo e de áudio dentro da resolução
    escolhida e usa `ffmpeg` para juntá-los no contêiner pedido (mp4, mkv, etc.)
 
+   O vídeo é sempre priorizado em **H.264 (avc1) + AAC**, mesmo que não seja a
+   maior resolução tecnicamente disponível — são os únicos codecs que
+   Windows e WhatsApp tocam/aceitam sem precisar instalar um codec extra
+   (o "melhor" stream do YouTube costuma vir em VP9/AV1, que o Windows não
+   decodifica de fábrica e o WhatsApp recusa ao enviar).
+
 ## Requisitos
 
 - Python 3.9+

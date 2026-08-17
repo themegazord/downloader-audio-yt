@@ -151,16 +151,25 @@ def baixar_video(url: str, qualidade: str = "melhor", formato: str = "mp4",
     saida = Path(pasta_saida)
     saida.mkdir(parents=True, exist_ok=True)
 
-    if qualidade == "melhor":
-        format_selector = "bestvideo*+bestaudio/best"
-    else:
-        altura = qualidade.rstrip("p")
-        format_selector = f"bestvideo*[height<={altura}]+bestaudio/best[height<={altura}]"
+    # Restringe a video em H.264 (avc1) + áudio em AAC (m4a) sempre que
+    # possível: são os únicos codecs que Windows, WhatsApp e a maioria dos
+    # players tocam sem precisar instalar codec extra (ex.: HEVC/AV1/VP9,
+    # que costumam ser os "melhores" streams do YouTube, mas exigem um
+    # codec pago no Windows e falham ao enviar pelo WhatsApp).
+    limite_altura = f"[height<={qualidade.rstrip('p')}]" if qualidade != "melhor" else ""
+    format_selector = (
+        f"bestvideo[vcodec^=avc1]{limite_altura}+bestaudio[acodec^=mp4a]"
+        f"/best[vcodec^=avc1]{limite_altura}"
+        f"/bestvideo{limite_altura}+bestaudio"
+        f"/best{limite_altura}"
+    )
 
     ydl_opts = {
         **_ydl_opts_base(saida),
         "format": format_selector,
         "merge_output_format": formato,
+        # Reforça a preferência por H.264/AAC dentro de cada candidato do seletor acima
+        "format_sort": ["vcodec:h264", "acodec:aac"],
     }
 
     return _baixar(url, ydl_opts, saida)
