@@ -18,12 +18,37 @@ Python com CLI e modo interativo.
 
 - Python 3.9+
 - [ffmpeg](https://ffmpeg.org/download.html) instalado e disponível no `PATH`
+  (Windows: `winget install --id Gyan.FFmpeg -e`, depois abra um novo terminal)
+- [Node.js](https://nodejs.org/) 20+ (usado para resolver desafios de assinatura
+  do YouTube e gerar o PO Token — veja abaixo)
 
 ## Instalação
 
 ```bash
 pip install -r requirements.txt
 ```
+
+### PO Token do YouTube (necessário para downloads confiáveis)
+
+O YouTube passou a exigir um "PO Token" para liberar a maioria dos streams de
+áudio; sem ele os downloads podem falhar com `HTTP Error 403: Forbidden`. Este
+projeto já usa o plugin [`bgutil-ytdlp-pot-provider`](https://github.com/Brainicism/bgutil-ytdlp-pot-provider)
+(instalado via `requirements.txt`) para gerar esse token automaticamente
+através de um servidor HTTP local.
+
+Configure o servidor uma única vez:
+
+```bash
+git clone --single-branch --branch 1.3.1 https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git ~/bgutil-ytdlp-pot-provider
+cd ~/bgutil-ytdlp-pot-provider/server
+npm ci
+npx tsc
+```
+
+A partir daí, o próprio `audio_extractor` sobe o servidor (`node build/main.js`)
+automaticamente em background na primeira vez que for necessário — não é
+preciso rodá-lo manualmente. Se o Node.js ou o repositório clonado não forem
+encontrados, o download segue sem o PO Token (pode falhar em alguns vídeos).
 
 ## Uso
 
