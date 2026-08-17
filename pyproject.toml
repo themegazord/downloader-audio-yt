@@ -1,0 +1,19 @@
+[project]
+name = "downloader-audio-yt"
+version = "1.0.0"
+description = "Extrator de áudio de vídeos (YouTube, Twitter/X, Instagram) usando yt-dlp"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "yt-dlp>=2024.10.7",
+]
+
+[project.scripts]
+audio-extractor = "audio_extractor.cli:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["audio_extractor*"]
