@@ -58,8 +58,14 @@ def _iniciar_pot_server_se_preciso() -> None:
         time.sleep(0.5)
 
 
+# Alguns sites (TikTok, Instagram) bloqueiam requisições automatizadas e só
+# funcionam com uma sessão de login real. Se existir um cookies.txt na pasta
+# atual (exportado do navegador — veja o README), ele é usado automaticamente.
+_COOKIES_FILE = Path.cwd() / "cookies.txt"
+
+
 def _ydl_opts_base(saida: Path) -> dict:
-    return {
+    opts = {
         "outtmpl": f"{saida}/%(title)s.%(ext)s",
         "noplaylist": True,       # evita baixar playlist inteira por engano
         "quiet": False,
@@ -69,6 +75,9 @@ def _ydl_opts_base(saida: Path) -> dict:
         "js_runtimes": {"deno": {}, "node": {}},
         "remote_components": ["ejs:github"],
     }
+    if _COOKIES_FILE.exists():
+        opts["cookiefile"] = str(_COOKIES_FILE)
+    return opts
 
 
 def _baixar(url: str, ydl_opts: dict, saida: Path) -> Path:

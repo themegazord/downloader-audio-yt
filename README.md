@@ -59,6 +59,16 @@ automaticamente em background na primeira vez que for necessário — não é
 preciso rodá-lo manualmente. Se o Node.js ou o repositório clonado não forem
 encontrados, o download segue sem o PO Token (pode falhar em alguns vídeos).
 
+### TikTok / Instagram (sites que bloqueiam automação)
+
+O TikTok em especial bloqueia requisições que não pareçam vir de um navegador
+logado de verdade, mesmo com o vídeo sendo público. Se um link de TikTok/Instagram
+falhar, exporte os cookies do seu navegador (já logado no site) usando uma
+extensão como [Get cookies.txt LOCALLY](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
+e salve o arquivo como `cookies.txt` **na pasta onde você roda o comando**
+(a mesma pasta onde `downloads/` é criada). O sistema detecta e usa esse
+arquivo automaticamente, sem precisar de nenhuma configuração extra.
+
 ## Uso
 
 O sistema conduz o download em 5 passos, perguntados um de cada vez no
