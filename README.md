@@ -69,6 +69,17 @@ e salve o arquivo como `cookies.txt` **na pasta onde você roda o comando**
 (a mesma pasta onde `downloads/` é criada). O sistema detecta e usa esse
 arquivo automaticamente, sem precisar de nenhuma configuração extra.
 
+> **Nota (ago/2026):** o TikTok mudou algo no site que está quebrando a
+> extração do yt-dlp para praticamente todo mundo no momento (mesmo com
+> cookies), gerando o erro `Unexpected response from webpage request`. É um
+> problema conhecido e em aberto no próprio yt-dlp — não é algo que dá pra
+> contornar por configuração:
+> [#17407](https://github.com/yt-dlp/yt-dlp/issues/17407),
+> [#17403](https://github.com/yt-dlp/yt-dlp/issues/17403),
+> [#17414](https://github.com/yt-dlp/yt-dlp/issues/17414).
+> Rode `pip install -U yt-dlp` de vez em quando para pegar a correção assim
+> que for lançada. YouTube, Twitter/X e Instagram não são afetados.
+
 ## Uso
 
 O sistema conduz o download em 5 passos, perguntados um de cada vez no
