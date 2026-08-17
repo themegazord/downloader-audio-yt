@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ponto de entrada: python main.py <URL> [--formato mp3|m4a|wav|opus] [--qualidade 0-9]"""
+"""Ponto de entrada: python main.py [URL] — conduz o resto por passos no terminal."""
 
 from audio_extractor.cli import main
 

@@ -52,33 +52,30 @@ encontrados, o download segue sem o PO Token (pode falhar em alguns vídeos).
 
 ## Uso
 
-### Modo direto (linha de comando)
-
-```bash
-python main.py "https://www.youtube.com/watch?v=XXXXXXXX" --formato mp3 --qualidade 0 --saida ./downloads
-```
-
-Também aceita múltiplas URLs de uma vez:
-
-```bash
-python main.py "URL_1" "URL_2" "URL_3" --formato m4a
-```
-
-### Modo interativo
-
-Rode sem argumentos para responder as perguntas no terminal:
+O sistema conduz o download em 4 passos, perguntados um de cada vez no
+terminal — não é preciso decorar nem passar flags:
 
 ```bash
 python main.py
 ```
 
-### Opções
+```
+=== Extrator de Áudio (YouTube / Twitter / Instagram) ===
+Passo 1/4 — URL do vídeo: https://www.youtube.com/watch?v=XXXXXXXX
+Passo 2/4 — Formato [mp3/m4a/wav/opus] (padrão: mp3):
+Passo 3/4 — Qualidade 0 (melhor) a 9 (pior) (padrão: 0):
+Passo 4/4 — Pasta de destino (padrão: ./downloads):
+```
 
-| Opção         | Padrão        | Descrição                                    |
-|---------------|---------------|-----------------------------------------------|
-| `--formato`   | `mp3`         | `mp3`, `m4a`, `wav` ou `opus`                  |
-| `--qualidade` | `0`           | `0` (melhor) a `9` (pior), VBR                 |
-| `--saida`     | `./downloads` | Pasta onde os arquivos serão salvos            |
+Ao final, ele pergunta se você quer baixar outro vídeo (`s`/`N`), então dá
+pra encadear vários downloads na mesma execução.
+
+Se preferir, pode passar a URL do Passo 1 direto como argumento — os demais
+passos continuam sendo perguntados normalmente:
+
+```bash
+python main.py "https://www.youtube.com/watch?v=XXXXXXXX"
+```
 
 ## Instalação como comando (opcional)
 

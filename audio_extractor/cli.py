@@ -1,6 +1,5 @@
-"""Interface de linha de comando do extrator de áudio."""
+"""Interface de linha de comando do extrator de áudio, em formato de passo a passo."""
 
-import argparse
 import sys
 
 import yt_dlp
@@ -17,46 +16,49 @@ def _processar(url: str, formato: str, qualidade: str, saida: str) -> bool:
         return False
 
 
-def _modo_interativo() -> None:
-    print("=== Extrator de Áudio (YouTube / Twitter / Instagram) ===")
-    url = input("URL do vídeo: ").strip()
-    if not url:
-        print("Nenhuma URL informada. Encerrando.")
-        return
-
+def _pedir_formato() -> str:
     formato = input(
-        f"Formato [{'/'.join(FORMATOS_SUPORTADOS)}] (padrão: mp3): "
+        f"Passo 2/4 — Formato [{'/'.join(FORMATOS_SUPORTADOS)}] (padrão: mp3): "
     ).strip() or "mp3"
     if formato not in FORMATOS_SUPORTADOS:
-        print(f"Formato inválido, usando mp3.")
+        print("Formato inválido, usando mp3.")
         formato = "mp3"
+    return formato
 
-    qualidade = input("Qualidade 0 (melhor) a 9 (pior) (padrão: 0): ").strip() or "0"
-    saida = input("Pasta de destino (padrão: ./downloads): ").strip() or "./downloads"
 
-    _processar(url, formato, qualidade, saida)
+def _pedir_qualidade() -> str:
+    return input("Passo 3/4 — Qualidade 0 (melhor) a 9 (pior) (padrão: 0): ").strip() or "0"
+
+
+def _pedir_saida() -> str:
+    return input("Passo 4/4 — Pasta de destino (padrão: ./downloads): ").strip() or "./downloads"
+
+
+def _executar_wizard(url_inicial: str = "") -> None:
+    print("=== Extrator de Áudio (YouTube / Twitter / Instagram) ===")
+
+    while True:
+        url = url_inicial or input("Passo 1/4 — URL do vídeo: ").strip()
+        url_inicial = ""  # só reaproveita a URL passada por argumento na 1ª volta
+        if not url:
+            print("Nenhuma URL informada. Encerrando.")
+            return
+
+        formato = _pedir_formato()
+        qualidade = _pedir_qualidade()
+        saida = _pedir_saida()
+
+        _processar(url, formato, qualidade, saida)
+
+        de_novo = input("\nBaixar outro vídeo? [s/N]: ").strip().lower()
+        print()
+        if de_novo not in ("s", "sim", "y", "yes"):
+            break
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Extrai áudio de vídeos (YouTube, Twitter/X, Instagram) usando yt-dlp"
-    )
-    parser.add_argument("urls", nargs="*", help="URL(s) do(s) vídeo(s)")
-    parser.add_argument("--formato", default="mp3", choices=FORMATOS_SUPORTADOS)
-    parser.add_argument("--qualidade", default="0", help="0 (melhor) a 9 (pior), padrão VBR")
-    parser.add_argument("--saida", default="./downloads", help="Pasta de destino")
-    args = parser.parse_args()
-
-    if not args.urls:
-        _modo_interativo()
-        return
-
-    sucesso_geral = True
-    for url in args.urls:
-        if not _processar(url, args.formato, args.qualidade, args.saida):
-            sucesso_geral = False
-
-    sys.exit(0 if sucesso_geral else 1)
+    url_inicial = sys.argv[1] if len(sys.argv) > 1 else ""
+    _executar_wizard(url_inicial)
 
 
 if __name__ == "__main__":
